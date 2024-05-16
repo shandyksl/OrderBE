@@ -1,9 +1,6 @@
 package com.example.OrderBE.models.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -13,8 +10,11 @@ public class ProductInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "productID")
     private String productID;
+    @Column(name = "productName")
     private String productName;
+    @Column(name = "quantity")
     private int quantity;
 
 }
