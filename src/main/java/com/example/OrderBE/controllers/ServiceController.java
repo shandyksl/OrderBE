@@ -1,6 +1,9 @@
 package com.example.OrderBE.controllers;
+import com.example.OrderBE.aop.error.ErrorCodeException;
 import com.example.OrderBE.models.entities.SalesOrder;
 import com.example.OrderBE.models.requests.PlaceOrderRequest;
+import com.example.OrderBE.models.responses.BaseApiResponse;
+import com.example.OrderBE.services.OrderService;
 import com.example.OrderBE.utils.OrderIDGenerator;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +24,19 @@ public class ServiceController {
 
     private final RocketMQTemplate rocketMQTemplate;
     private final OrderIDGenerator orderIDGenerator;
+    private final OrderService orderService;
 
 @Autowired
-public ServiceController(RocketMQTemplate rocketMQTemplate, OrderIDGenerator orderIDGenerator) {
+public ServiceController(RocketMQTemplate rocketMQTemplate, OrderIDGenerator orderIDGenerator, OrderService orderService) {
     this.rocketMQTemplate = rocketMQTemplate;
     this.orderIDGenerator = orderIDGenerator;
+    this.orderService = orderService;
 }
 
     @PostMapping("/placeorder")
-    public ResponseEntity<String> placeOrder(@RequestBody PlaceOrderRequest requestbody) {
-        List<SalesOrder> salesOrders = requestbody.getSalesOrders();
+    public BaseApiResponse placeOrder(@RequestBody PlaceOrderRequest requestbody) throws ErrorCodeException {
 
+        List<SalesOrder> salesOrders = requestbody.getSalesOrders();
         String orderId = orderIDGenerator.generateUniqueOrderId();
         for(SalesOrder salesOrder : salesOrders) {
             salesOrder.setOrderId(orderId);
@@ -39,6 +44,6 @@ public ServiceController(RocketMQTemplate rocketMQTemplate, OrderIDGenerator ord
         rocketMQTemplate.convertAndSend("placeorder", salesOrders);
         logger.info("Order received and sent to RocketMQ");
 
-        return ResponseEntity.ok("Order received and sent to RocketMQ");
+        return new BaseApiResponse("Order received and sent to RocketMQ");
     }
 }

@@ -1,6 +1,6 @@
 package com.example.OrderBE.Initializer;
 
-import com.example.OrderBE.services.OrderService;
+import com.example.OrderBE.services.OrderServiceImplementation;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.rocketmq.client.consumer.DefaultLitePullConsumer;
@@ -18,12 +18,12 @@ public class OrderServiceInitializer {
 
     private static final Logger logger = Logger.getLogger(OrderServiceInitializer.class.getName());
 
-    private final OrderService orderService;
+    private final OrderServiceImplementation orderService;
     private DefaultLitePullConsumer litePullConsumer;
     private ScheduledExecutorService executorService;
 
     @Autowired
-    public OrderServiceInitializer(OrderService orderService) {
+    public OrderServiceInitializer(OrderServiceImplementation orderService) {
         this.orderService = orderService;
     }
 
