@@ -3,7 +3,6 @@ import com.example.OrderBE.aop.error.ErrorCodeException;
 import com.example.OrderBE.models.entities.SalesOrder;
 import com.example.OrderBE.models.requests.PlaceOrderRequest;
 import com.example.OrderBE.models.responses.BaseApiResponse;
-import com.example.OrderBE.services.OrderService;
 import com.example.OrderBE.utils.OrderIDGenerator;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +23,13 @@ public class ServiceController {
 
     private final RocketMQTemplate rocketMQTemplate;
     private final OrderIDGenerator orderIDGenerator;
-    private final OrderService orderService;
+
 
 @Autowired
-public ServiceController(RocketMQTemplate rocketMQTemplate, OrderIDGenerator orderIDGenerator, OrderService orderService) {
+public ServiceController(RocketMQTemplate rocketMQTemplate, OrderIDGenerator orderIDGenerator) {
     this.rocketMQTemplate = rocketMQTemplate;
     this.orderIDGenerator = orderIDGenerator;
-    this.orderService = orderService;
+
 }
 
     @PostMapping("/placeorder")

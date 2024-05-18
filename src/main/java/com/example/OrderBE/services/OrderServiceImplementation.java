@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Service
-public class OrderServiceImplementation implements OrderService {
+public class OrderServiceImplementation  {
 
     private static final Logger logger = Logger.getLogger(OrderServiceImplementation.class.getName());
 
@@ -53,12 +53,6 @@ public class OrderServiceImplementation implements OrderService {
 
                 for (MessageExt messageExt : messageExts) {
                     List<SalesOrder> salesOrders = convertMessageToSalesOrder(messageExt);
-//                    for(SalesOrder order : salesOrders) {
-//                        int quantity = productInfoRepository.findQuantityByProductID(order.getProductId());
-//                        if(quantity < order.getQuantity()) {
-//                            throw new ErrorCodeException(ErrorCode.QTY_EXCEEDED);
-//                        }
-//                    }
                     salesOrderRepository.saveAll(salesOrders);
 
                     for (SalesOrder salesOrder : salesOrders) {
