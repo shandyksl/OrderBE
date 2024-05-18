@@ -53,12 +53,12 @@ public class OrderServiceImplementation implements OrderService {
 
                 for (MessageExt messageExt : messageExts) {
                     List<SalesOrder> salesOrders = convertMessageToSalesOrder(messageExt);
-                    for(SalesOrder order : salesOrders) {
-                        int quantity = productInfoRepository.findQuantityByProductID(order.getProductID());
-                        if(quantity < order.getQuantity()) {
-                            throw new ErrorCodeException(ErrorCode.QTY_EXCEEDED);
-                        }
-                    }
+//                    for(SalesOrder order : salesOrders) {
+//                        int quantity = productInfoRepository.findQuantityByProductID(order.getProductId());
+//                        if(quantity < order.getQuantity()) {
+//                            throw new ErrorCodeException(ErrorCode.QTY_EXCEEDED);
+//                        }
+//                    }
                     salesOrderRepository.saveAll(salesOrders);
 
                     for (SalesOrder salesOrder : salesOrders) {

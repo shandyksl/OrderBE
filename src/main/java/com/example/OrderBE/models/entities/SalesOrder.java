@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -13,19 +14,25 @@ public class SalesOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "orderID")
     private String orderId;
 
-    @Column(name = "productID")
-    private String productID;
+    private String productId;
 
-    @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "totalPrice")
     private BigDecimal totalPrice;
 
-    @Column(name = "quantity")
     private int quantity;
+
+    private int status;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = LocalDateTime.now();
+        this.status = 0;
+    }
 
 }
