@@ -16,5 +16,4 @@ public class ProductInfo {
     private String productName;
 
     private int quantity;
-
 }
