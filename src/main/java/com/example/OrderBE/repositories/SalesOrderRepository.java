@@ -13,7 +13,6 @@ public interface  SalesOrderRepository extends JpaRepository<SalesOrder, Long> {
     @Query("SELECT o FROM SalesOrder o WHERE o.status = 0 AND o.createdDate <= :thirtyMinutesAgo")
     List<SalesOrder> findExpiredOrders(@Param("thirtyMinutesAgo") LocalDateTime thirtyMinutesAgo);
 
-    @Query("SELECT o FROM SalesOrder o WHERE o.orderId = :orderId AND o.status = 0")
     List<SalesOrder> findByOrderId(@Param("orderId") String orderId);
 
 }
