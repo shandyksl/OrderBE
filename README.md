@@ -9,6 +9,7 @@ The following are the main functions of the backend API
 2. 订单支付 OrderPayment
 3. 获取订单详情 GetOrderDetails
 
+For more details, kind review API Documents
 
 ## Technical
 The project uses Java 18, Spring Boot 3, and incorporates Object-Oriented Programming (OOP), Dependency Injection, and Aspect-Oriented Programming (AOP).
@@ -25,7 +26,7 @@ It is recommended to use Intellij Idea Community for development, and to install
 2.1 Download [MySqlServer](https://dev.mysql.com/downloads/installer/) And MySQL Workbench [MySqlWorkbench](https://dev.mysql.com/downloads/workbench/), Install MySQL Server and MySQL Workbench,    
 In MySQL Server, set the account for localhost to root, and set the password to Root1234.
 
-2.2 Create localhost server:
+2.2 Create localhost Mqlserver:
 - Connection Name : Please decide on a memorable name.
 - Hostname : localhost
 - Port : 3306
@@ -33,5 +34,23 @@ In MySQL Server, set the account for localhost to root, and set the password to 
 - Password : Root1234
 
 2.3 In MySQL Workbench, create a Schema called "toys".   
+
 2.4 Copy [init.sql](./src/init/init.sql) the contents inside, then execute in that schema.  
-   
+
+2.5 Redis localhost
+- Hostname : localhost
+- Port : 6379
+
+2.6 RocketMQ localhost
+- Hostname : localhost
+- Port : 9876
+
+
+
+
+
+## Maintenance
+Please follow the existing style for naming practices of classes, methods, variables, and folders.     
+folderName : camelCase    
+variable   : camelCase    
+className  : PascalCase   
