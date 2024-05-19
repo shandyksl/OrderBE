@@ -99,6 +99,20 @@ public class OrderServiceImplementation implements OrderService {
         }
     }
 
+    @Override
+    public void orderPayment(String orderId){
+        List<SalesOrder> list = salesOrderRepository.findByOrderId(orderId);
+
+        if(list.isEmpty()) {
+            throw new ErrorCodeException(ErrorCode.ORDERID_NOT_EXIST);
+        }
+
+        for(SalesOrder salesOrder : list){
+            salesOrder.setStatus(1);
+        }
+        salesOrderRepository.saveAll(list);
+    }
+
     private List<SalesOrder> convertMessageToSalesOrder(MessageExt messageExt) throws IOException {
         List<SalesOrder> salesOrders = new ArrayList<>();
         // Extract the message body as a byte array

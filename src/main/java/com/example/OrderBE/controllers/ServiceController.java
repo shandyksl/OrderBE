@@ -1,5 +1,4 @@
 package com.example.OrderBE.controllers;
-
 import com.example.OrderBE.aop.error.ErrorCodeException;
 import com.example.OrderBE.models.entities.SalesOrder;
 import com.example.OrderBE.models.requests.GetSalesOrderRequest;
@@ -88,4 +87,14 @@ public class ServiceController {
         List<SalesOrder> salesOrderDetail = orderService.getSalesOrderDetails(requestbody.getOrderId());
         return new BaseApiResponse(salesOrderDetail);
     }
+
+    @PostMapping("/orderpayment")
+    public BaseApiResponse orderPayment(@RequestBody GetSalesOrderRequest requestbody){
+        requestbody.validate();
+
+        orderService.orderPayment(requestbody.getOrderId());
+
+        return new BaseApiResponse("Order Payment Succesfully");
+    }
+
 }

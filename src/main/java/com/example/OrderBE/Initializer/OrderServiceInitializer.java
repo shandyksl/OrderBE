@@ -34,10 +34,8 @@ public class OrderServiceInitializer {
         litePullConsumer.setPullBatchSize(20);
         litePullConsumer.start();
         logger.info("Consumer started and subscribed to topic 'placeorder'.");
-
         executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(orderService::pollMessages, 0, 1, TimeUnit.SECONDS);
-
         orderService.setLitePullConsumer(litePullConsumer);
     }
 
