@@ -6,13 +6,10 @@ import com.example.OrderBE.models.entities.SalesOrder;
 import com.example.OrderBE.repositories.ProductInfoRepository;
 import com.example.OrderBE.repositories.SalesOrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Setter;
-import org.apache.rocketmq.client.consumer.DefaultLitePullConsumer;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
@@ -29,19 +26,12 @@ public class OrderServiceImplementation implements OrderService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static volatile boolean running = true;
-
-
     private final SalesOrderRepository salesOrderRepository;
-
 
     private final ProductInfoRepository productInfoRepository;
 
-
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Setter
-    private DefaultLitePullConsumer litePullConsumer;
 
     @Autowired
     public OrderServiceImplementation(SalesOrderRepository salesOrderRepository, ProductInfoRepository productInfoRepository, RedisTemplate<String, Object> redisTemplate) {
@@ -51,47 +41,37 @@ public class OrderServiceImplementation implements OrderService {
     }
 
 
-    @Transactional
-    public void pollMessages() throws ErrorCodeException {
-        try {
-            if (running) {
-                logger.info("Polling for messages...");
-                List<MessageExt> messageExts = litePullConsumer.poll();
-                logger.info("Number of messages polled: " + messageExts.size());
-
-                for (MessageExt messageExt : messageExts) {
-                    List<SalesOrder> salesOrders = convertMessageToSalesOrder(messageExt);
-
-                    for (SalesOrder salesOrder : salesOrders) {
-
-                        // Deduct quantity from Redis
-                        redisTemplate.opsForHash().increment(salesOrder.getProductId(), "quantity", -salesOrder.getQuantity());
-
-                        // Deduct quantity from product table
-                        ProductInfo product = productInfoRepository.findByProductId(salesOrder.getProductId());
-                        product.setQuantity(product.getQuantity() - salesOrder.getQuantity());
-                        productInfoRepository.save(product);
-                    }
-                    // save order
-                    salesOrderRepository.saveAll(salesOrders);
-
-                    for (SalesOrder salesOrder : salesOrders) {
-                        logger.info("Saved sales order with ID: " + salesOrder.getOrderId());
-                    }
-                }
+    @Override
+    public void placeOrder(List<MessageExt> messageExts) throws ErrorCodeException {
+        for (MessageExt messageExt : messageExts) {
+            List<SalesOrder> salesOrders = null;
+            try {
+                salesOrders = convertMessageToSalesOrder(messageExt);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            // Log the exception
-            logger.severe("Error while polling messages: " + e.getMessage());
-            e.printStackTrace();
+
+            for (SalesOrder salesOrder : salesOrders) {
+                // Deduct quantity from Redis
+                redisTemplate.opsForHash().increment(salesOrder.getProductId(), "quantity", -salesOrder.getQuantity());
+
+                // Deduct quantity from product table
+                ProductInfo product = productInfoRepository.findByProductId(salesOrder.getProductId());
+                product.setQuantity(product.getQuantity() - salesOrder.getQuantity());
+                productInfoRepository.save(product);
+            }
+            // save order
+            salesOrderRepository.saveAll(salesOrders);
+
+            for (SalesOrder salesOrder : salesOrders) {
+                logger.info("Saved sales order with ID: " + salesOrder.getOrderId());
+            }
         }
     }
-
 
     @Override
     public List<SalesOrder> getSalesOrderDetails(String orderId){
         List<SalesOrder> list = salesOrderRepository.findByOrderId(orderId);
-
         if(list.isEmpty()) {
             throw new ErrorCodeException(ErrorCode.ORDERID_NOT_EXIST);
         }else {

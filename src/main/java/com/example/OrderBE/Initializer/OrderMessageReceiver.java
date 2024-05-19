@@ -1,29 +1,32 @@
 package com.example.OrderBE.Initializer;
 
-import com.example.OrderBE.services.OrderServiceImplementation;
+import com.example.OrderBE.services.OrderService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.rocketmq.client.consumer.DefaultLitePullConsumer;
 import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Component
-public class OrderServiceInitializer {
+public class OrderMessageReceiver {
 
-    private static final Logger logger = Logger.getLogger(OrderServiceInitializer.class.getName());
+    private static final Logger logger = Logger.getLogger(OrderMessageReceiver.class.getName());
 
-    private final OrderServiceImplementation orderService;
+    public static volatile boolean running = true;
+    private final OrderService orderService;
     private DefaultLitePullConsumer litePullConsumer;
     private ScheduledExecutorService executorService;
 
     @Autowired
-    public OrderServiceInitializer(OrderServiceImplementation orderService) {
+    public OrderMessageReceiver(OrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -33,12 +36,29 @@ public class OrderServiceInitializer {
         litePullConsumer.subscribe("placeorder", "*");
         litePullConsumer.setPullBatchSize(20);
         litePullConsumer.start();
-        logger.info("Consumer started and subscribed to topic 'placeorder'.");
+        logger.info(" OrderMessageReceiver started and subscribed to topic 'placeorder'.");
         executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(orderService::pollMessages, 0, 1, TimeUnit.SECONDS);
-        orderService.setLitePullConsumer(litePullConsumer);
+        executorService.scheduleAtFixedRate(this::pollMessages, 0, 1, TimeUnit.SECONDS);
     }
 
+    private void pollMessages() {
+        try {
+            if (running) {
+                logger.info("OrderMessageReceiver polling for messages...");
+                List<MessageExt> messageExts = litePullConsumer.poll();
+                logger.info("Number of messages polled: " + messageExts.size() + "in OrderMessageReceiver");
+                if (!messageExts.isEmpty()) {
+                    orderService.placeOrder(messageExts);
+                }
+            }
+        } catch (Exception e) {
+
+            // Log the exception
+            logger.severe("Error while polling messages: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
     @PreDestroy
     public void shutdown() {
         if (litePullConsumer != null) {
@@ -50,5 +70,4 @@ public class OrderServiceInitializer {
             logger.info("Executor service shut down.");
         }
     }
-
 }
