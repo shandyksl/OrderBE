@@ -46,19 +46,18 @@ public class OrderMessageReceiver {
             if (running) {
                 logger.info("OrderMessageReceiver polling for messages...");
                 List<MessageExt> messageExts = litePullConsumer.poll();
-                logger.info("Number of messages polled: " + messageExts.size() + "in OrderMessageReceiver");
+                logger.info("Number of messages polled: " + messageExts.size());
                 if (!messageExts.isEmpty()) {
                     orderService.placeOrder(messageExts);
                 }
             }
         } catch (Exception e) {
-
             // Log the exception
             logger.severe("Error while polling messages: " + e.getMessage());
-            e.printStackTrace();
         }
 
     }
+
     @PreDestroy
     public void shutdown() {
         if (litePullConsumer != null) {

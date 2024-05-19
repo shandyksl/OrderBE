@@ -25,12 +25,11 @@ public class ProductCacheLoader {
     @PostConstruct
     public void loadProductsIntoCache() {
         List<ProductInfo> products = productRepository.findAll();
-        products.forEach(product -> {
-            String productKey = product.getProductId();
-            if (Boolean.FALSE.equals(redisTemplate.hasKey(productKey))) { // Check if the key already exists
-                redisTemplate.opsForHash().put(productKey, "productName", product.getProductName());
-                redisTemplate.opsForHash().put(productKey, "quantity", String.valueOf(product.getQuantity()));
+            for (ProductInfo product : products) {
+                String productKey = product.getProductId();
+                    redisTemplate.opsForHash().put(productKey, "productName", product.getProductName());
+                    redisTemplate.opsForHash().put(productKey, "quantity", String.valueOf(product.getQuantity()));
             }
-        });
+
     }
 }

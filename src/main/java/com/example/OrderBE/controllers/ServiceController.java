@@ -34,6 +34,7 @@ public class ServiceController {
         this.orderIDGenerator = orderIDGenerator;
         this.redisTemplate = redisTemplate;
         this.orderService = orderService;
+
     }
 
     @PostMapping("/placeorder")
@@ -51,7 +52,6 @@ public class ServiceController {
                 String errorMessage = String.format("Product with ID: %s not found in stock.", salesOrder.getProductId());
                 return new BaseApiResponse(errorMessage);
             }
-
             // Retrieve stock quantity from Redis
             int stockQuantity = Integer.parseInt((String) redisTemplate.opsForHash().get(salesOrder.getProductId(), "quantity"));
             String productName = (String) redisTemplate.opsForHash().get(salesOrder.getProductId(), "productName");
@@ -93,6 +93,6 @@ public class ServiceController {
 
         orderService.orderPayment(requestbody.getOrderId());
 
-        return new BaseApiResponse("Order Payment Succesfully");
+        return new BaseApiResponse("Transaction Successful");
     }
 }
