@@ -12,7 +12,11 @@ public class BaseApiResponse {
 
     @JsonProperty("status")
     private Integer statusCode;
+
+    // 成功参数
     private Object data;
+
+    // 失败参数
     private String statusID;
     private String description;
 
@@ -21,11 +25,12 @@ public class BaseApiResponse {
         this.statusCode = ErrorCode.OK.getStatus();
     }
 
+    // 成功
     public BaseApiResponse(Object data, HttpStatus httpStatus) {
         this.data = data;
         this.statusCode = httpStatus.value();
     }
-
+    // 失败
     public BaseApiResponse(ErrorCode errorCode) {
         this.statusID = errorCode.name();
         this.statusCode = errorCode.getStatus();

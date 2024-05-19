@@ -41,12 +41,21 @@ public class ServiceController {
     @PostMapping("/placeorder")
     public BaseApiResponse placeOrder(@RequestBody PlaceOrderRequest requestbody) throws ErrorCodeException {
 
+        requestbody.validate();
+
         List<SalesOrder> salesOrders = requestbody.getSalesOrders();
         List<String> errorMessages = new ArrayList<>();
 
         for (SalesOrder salesOrder : salesOrders) {
+            // Check whether product key is existing in redis server
+            Boolean hasKey = redisTemplate.opsForHash().hasKey(salesOrder.getProductId(), "quantity");
+            if (!hasKey) {
+                String errorMessage = String.format("Product with ID: %s not found in stock.", salesOrder.getProductId());
+                return new BaseApiResponse(errorMessage);
+            }
+
             // Retrieve stock quantity from Redis
-            Integer stockQuantity = Integer.valueOf((String) redisTemplate.opsForHash().get(salesOrder.getProductId(), "quantity"));
+            int stockQuantity = Integer.parseInt((String) redisTemplate.opsForHash().get(salesOrder.getProductId(), "quantity"));
             String productName = (String) redisTemplate.opsForHash().get(salesOrder.getProductId(), "productName");
 
             // Check if stock quantity is sufficient
@@ -57,7 +66,7 @@ public class ServiceController {
             }
         }
 
-        // Return error is stock quantity is not enough
+        // Return error if stock quantity is not enough
         if (!errorMessages.isEmpty()) {
             return new BaseApiResponse(String.join("; ", errorMessages));
         }
