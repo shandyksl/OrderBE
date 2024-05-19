@@ -25,28 +25,13 @@ It is recommended to use Intellij Idea Community for development, and to install
 2.1 Download [MySqlServer](https://dev.mysql.com/downloads/installer/) And MySQL Workbench [MySqlWorkbench](https://dev.mysql.com/downloads/workbench/), Install MySQL Server and MySQL Workbench,    
 In MySQL Server, set the account for localhost to root, and set the password to Root1234.
 
-2.2 MySql localhost Configuration:
+2.2 Create localhost server:
 - Connection Name : Please decide on a memorable name.
 - Hostname : localhost
 - Port : 3306
 - Username : root
 - Password : Root1234
 
-2.3 In MySQL Workbench, create a Schema called "toys".
-
-2.4 Copy [init.sql](./src/init/init.sql) the contents inside, then execute in that schema.
-
-2.5 RocketMQ Configuration
-- rocketmq.name-server=localhost:9876
-
-
-2.6 Redis Configuration
-- spring.data.redis.host=localhost
-- spring.data.redis.port=6379
-
-
-## Maintainance
-Please follow the existing style for naming practices of classes, methods, variables, and folders.folderName : camelCase    
-variable   : camelCase    
-className  : PascalCase  
+2.3 In MySQL Workbench, create a Schema called "toys".   
+2.4 Copy [init.sql](./src/init/init.sql) the contents inside, then execute in that schema.  
    
