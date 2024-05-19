@@ -15,14 +15,18 @@ import java.util.List;
 @Component
 public class StatusScheduler {
 
-    @Autowired
-    private SalesOrderRepository salesOrderRepository;
+    private final SalesOrderRepository salesOrderRepository;
+
+    private final ProductInfoRepository productInfoRepository;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    private ProductInfoRepository productInfoRepository;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    public StatusScheduler(SalesOrderRepository salesOrderRepository,ProductInfoRepository productInfoRepository,RedisTemplate<String, Object> redisTemplate) {
+        this.salesOrderRepository = salesOrderRepository;
+        this.productInfoRepository = productInfoRepository;
+        this.redisTemplate = redisTemplate;
+    }
 
     @Scheduled(fixedRate = 60000) // Runs every minute
     public void updateOrderStatus() {
@@ -31,6 +35,7 @@ public class StatusScheduler {
         List<SalesOrder> expiredOrders = salesOrderRepository.findExpiredOrders(thirtyMinutesAgo);
 
         for (SalesOrder salesorder : expiredOrders) {
+            // Status Open : 0, Paid : 1, Closed : 2
             salesorder.setStatus(2);
             salesOrderRepository.save(salesorder);
 

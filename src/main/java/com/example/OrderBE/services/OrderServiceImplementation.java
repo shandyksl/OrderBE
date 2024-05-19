@@ -1,5 +1,5 @@
 package com.example.OrderBE.services;
-
+import com.example.OrderBE.aop.error.ErrorCode;
 import com.example.OrderBE.aop.error.ErrorCodeException;
 import com.example.OrderBE.models.entities.ProductInfo;
 import com.example.OrderBE.models.entities.SalesOrder;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Service
-public class OrderServiceImplementation {
+public class OrderServiceImplementation implements OrderService {
 
     private static final Logger logger = Logger.getLogger(OrderServiceImplementation.class.getName());
 
@@ -31,21 +31,28 @@ public class OrderServiceImplementation {
 
     public static volatile boolean running = true;
 
-    @Autowired
-    private SalesOrderRepository salesOrderRepository;
 
-    @Autowired
-    private ProductInfoRepository productInfoRepository;
+    private final SalesOrderRepository salesOrderRepository;
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+
+    private final ProductInfoRepository productInfoRepository;
+
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Setter
     private DefaultLitePullConsumer litePullConsumer;
 
+    @Autowired
+    public OrderServiceImplementation(SalesOrderRepository salesOrderRepository, ProductInfoRepository productInfoRepository, RedisTemplate<String, Object> redisTemplate) {
+        this.salesOrderRepository = salesOrderRepository;
+        this.productInfoRepository = productInfoRepository;
+        this.redisTemplate = redisTemplate;
+    }
+
+
     @Transactional
     public void pollMessages() throws ErrorCodeException {
-
         try {
             if (running) {
                 logger.info("Polling for messages...");
@@ -77,6 +84,18 @@ public class OrderServiceImplementation {
             // Log the exception
             logger.severe("Error while polling messages: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public List<SalesOrder> getSalesOrderDetails(String orderId){
+        List<SalesOrder> list = salesOrderRepository.findByOrderId(orderId);
+
+        if(list.isEmpty()) {
+            throw new ErrorCodeException(ErrorCode.ORDERID_NOT_EXIST);
+        }else {
+            return list;
         }
     }
 

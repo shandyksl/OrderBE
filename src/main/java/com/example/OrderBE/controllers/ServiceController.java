@@ -1,16 +1,16 @@
 package com.example.OrderBE.controllers;
+
 import com.example.OrderBE.aop.error.ErrorCodeException;
 import com.example.OrderBE.models.entities.SalesOrder;
+import com.example.OrderBE.models.requests.GetSalesOrderRequest;
 import com.example.OrderBE.models.requests.PlaceOrderRequest;
 import com.example.OrderBE.models.responses.BaseApiResponse;
+import com.example.OrderBE.services.OrderService;
 import com.example.OrderBE.utils.OrderIDGenerator;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +22,21 @@ public class ServiceController {
 
     private static final Logger logger = Logger.getLogger(ServiceController.class.getName());
 
-    @Autowired
-    private RocketMQTemplate rocketMQTemplate;
-    @Autowired
-    private OrderIDGenerator orderIDGenerator;
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RocketMQTemplate rocketMQTemplate;
 
+    private final OrderIDGenerator orderIDGenerator;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final OrderService orderService;
+
+    @Autowired
+    public ServiceController(RocketMQTemplate rocketMQTemplate, OrderIDGenerator orderIDGenerator, RedisTemplate<String, Object> redisTemplate, OrderService orderService) {
+        this.rocketMQTemplate = rocketMQTemplate;
+        this.orderIDGenerator = orderIDGenerator;
+        this.redisTemplate = redisTemplate;
+        this.orderService = orderService;
+    }
 
     @PostMapping("/placeorder")
     public BaseApiResponse placeOrder(@RequestBody PlaceOrderRequest requestbody) throws ErrorCodeException {
@@ -42,9 +50,9 @@ public class ServiceController {
             String productName = (String) redisTemplate.opsForHash().get(salesOrder.getProductId(), "productName");
 
             // Check if stock quantity is sufficient
-            if (stockQuantity == null || stockQuantity < salesOrder.getQuantity()) {
+            if (stockQuantity < salesOrder.getQuantity()) {
                 String errorMessage = String.format("Insufficient stock for product %s (ID: %s). Requested: %d, Available: %d",
-                        productName, salesOrder.getProductId(), salesOrder.getQuantity(), stockQuantity == null ? 0 : stockQuantity);
+                        productName, salesOrder.getProductId(), salesOrder.getQuantity(), stockQuantity);
                 errorMessages.add(errorMessage);
             }
         }
@@ -62,5 +70,13 @@ public class ServiceController {
         logger.info("Order received and sent to RocketMQ");
 
         return new BaseApiResponse("Order received and sent to RocketMQ");
+    }
+
+    @GetMapping("/getsalesorderdetails")
+    public BaseApiResponse getSalesOrderDetails(@RequestBody GetSalesOrderRequest requestbody) throws ErrorCodeException {
+
+        requestbody.validate();
+        List<SalesOrder> salesOrderDetail = orderService.getSalesOrderDetails(requestbody.getOrderId());
+        return new BaseApiResponse(salesOrderDetail);
     }
 }

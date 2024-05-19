@@ -10,5 +10,4 @@ public class ErrorCodeException extends RuntimeException {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
-
 }

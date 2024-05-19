@@ -1,4 +1,4 @@
-package com.example.OrderBE.cache;
+package com.example.OrderBE.Initializer.cache;
 
 import com.example.OrderBE.models.entities.ProductInfo;
 import com.example.OrderBE.repositories.ProductInfoRepository;
@@ -12,11 +12,15 @@ import java.util.List;
 @Component
 public class ProductCacheLoader {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final ProductInfoRepository productRepository;
 
     @Autowired
-    private ProductInfoRepository productRepository;
+    public ProductCacheLoader(RedisTemplate<String, Object> redisTemplate, ProductInfoRepository productRepository) {
+        this.redisTemplate = redisTemplate;
+        this.productRepository = productRepository;
+    }
 
     @PostConstruct
     public void loadProductsIntoCache() {
