@@ -1,1 +1,73 @@
-test
+# API PlaceOrder
+
+RequestBody :
+{
+    "salesOrders": [
+        {
+            "productId": "PRD4X2Z9",
+            "price": 10,
+            "totalPrice": 20,
+            "quantity": 2
+        
+        },
+        {
+            "productId": "QW4B8P2K",
+            "price": 25,
+            "totalPrice": 50,
+            "quantity": 2
+        }
+    ]
+}
+ ResponseBody :
+{
+    "data": "Order received and sent to RocketMQ",
+    "status": 100
+}
+
+# API OrderPayment
+
+RequestBody :
+{
+    "orderId": "d9fb6aa4-ff7b-456e-9ae5-f6a55f6eadf8"
+}
+ ResponseBody :
+{
+     "data": "Transaction Successful",
+    "status": 100
+}
+
+# API GetOrderDetails
+
+RequestBody :
+{
+    "orderId": "d9fb6aa4-ff7b-456e-9ae5-f6a55f6eadf8"
+}
+
+ResponseBody :
+{
+    "data": [
+        {
+            "id": 39,
+            "orderId": "d9fb6aa4-ff7b-456e-9ae5-f6a55f6eadf8",
+            "productId": "PRD4X2Z9",
+            "price": 10.00,
+            "totalPrice": 20.00,
+            "quantity": 2,
+            "status": 1,
+            "createdDate": "2024-05-20T01:10:13.071162"
+        },
+        {
+            "id": 40,
+            "orderId": "d9fb6aa4-ff7b-456e-9ae5-f6a55f6eadf8",
+            "productId": "QW4B8P2K",
+            "price": 25.00,
+            "totalPrice": 50.00,
+            "quantity": 2,
+            "status": 1,
+            "createdDate": "2024-05-20T01:10:13.131166"
+        }
+    ],
+    "status": 100
+}
+
+
