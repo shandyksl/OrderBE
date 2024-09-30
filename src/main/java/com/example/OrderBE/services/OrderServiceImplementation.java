@@ -6,6 +6,7 @@ import com.example.OrderBE.models.entities.SalesOrder;
 import com.example.OrderBE.repositories.ProductInfoRepository;
 import com.example.OrderBE.repositories.SalesOrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ public class OrderServiceImplementation implements OrderService {
 
 
     @Override
+    @Transactional
     public void placeOrder(List<MessageExt> messageExts) {
         for (MessageExt messageExt : messageExts) {
             try {
@@ -68,6 +70,7 @@ public class OrderServiceImplementation implements OrderService {
     }
 
     @Override
+    @Transactional
     public void orderPayment(String orderId){
         List<SalesOrder> salesOrders = salesOrderRepository.findByOrderId(orderId);
 
